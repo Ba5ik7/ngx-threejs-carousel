@@ -20,7 +20,7 @@ import { AsyncPipe } from '@angular/common';
         href="https://github.com/Ba5ik7/ngx-editor-js2-blocks"
         target="_blank"
       >
-        <mat-icon>search</mat-icon>Wesley William DuSell
+        <mat-icon>school</mat-icon>Wesley William DuSell
       </a>
       <div class="flex-spacer"></div>
       <app-theme-picker></app-theme-picker>

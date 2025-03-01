@@ -6,8 +6,6 @@ import {
   ViewChild,
   HostListener,
   output,
-  input,
-  linkedSignal,
   Input,
   signal,
 } from '@angular/core';
@@ -53,16 +51,16 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   private planeSpacingY = 150; // How far each plane is spaced on Y
   private angleOffset = 540; // The “yaw” in your old code (like 380/xmlList.length)...
   private images = [
-    'assets/angular.png',
-    'assets/ngx-workshop-logo.png',
+    'assets/javascript.png',
+    'assets/flash.png',
+    'assets/gba.png',
+    'assets/ngx-workshop.png',
+    'assets/mountain-2.png',
     'assets/flash_cs4_firefly.png',
     'assets/flash_cs4.png',
     'assets/flash_cc.jpg',
     'assets/iis-7-welcome-screen.png',
     'assets/lamp.jpeg',
-    'assets/flash_cc.jpg',
-    'assets/flash_cc.jpg',
-    'assets/flash_cc.jpg',
     'assets/flash_cc.jpg',
   ];
 

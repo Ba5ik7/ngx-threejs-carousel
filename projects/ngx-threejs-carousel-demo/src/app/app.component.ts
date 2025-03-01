@@ -1,5 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+} from '@angular/animations';
 import { CampGroundSceneComponent } from './components/camp-ground-scene.component';
 import { AppService } from './services/app.service';
 import { AsyncPipe } from '@angular/common';
@@ -8,14 +14,27 @@ import { NavBarComponent } from './components/nav-bar.component';
 @Component({
   selector: 'app-root',
   imports: [AsyncPipe, RouterOutlet, NavBarComponent, CampGroundSceneComponent],
+  animations: [
+    trigger('routeAnimations', [
+      transition('* <=> *', [
+        style({ opacity: 0, transform: 'translateX(100%)' }),
+        animate(
+          '300ms 1300ms ease-out',
+          style({ opacity: 1, transform: 'translateX(0)' })
+        ),
+      ]),
+    ]),
+  ],
   template: `
     <app-nav-bar></app-nav-bar>
     <main>
-    <router-outlet></router-outlet>
-    <camp-ground-scene
-      [currentProject]="(this.appService.curentProject$ | async) ?? 0"
-      (projectIndexChanged)="router.navigate(['/project', $event])"
-    ></camp-ground-scene>
+      <camp-ground-scene
+        [currentProject]="(this.appService.curentProject$ | async) ?? 0"
+        (projectIndexChanged)="router.navigate(['/project', $event])"
+      ></camp-ground-scene>
+      <div [@routeAnimations]="getRouteState(outlet)">
+        <router-outlet #outlet="outlet"></router-outlet>
+      </div>
     </main>
   `,
   styles: [
@@ -24,13 +43,15 @@ import { NavBarComponent } from './components/nav-bar.component';
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        overflow-y: hidden;
+
         main {
-          flex: 1;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          // gap: 3em;
-          // margin-top: 56px;
+          align-items: flex-end;
+          camp-ground-scene {
+            position: absolute;
+          }
         }
         app-nav-bar {
           position: fixed;
@@ -46,4 +67,10 @@ import { NavBarComponent } from './components/nav-bar.component';
 export class AppComponent {
   router = inject(Router);
   appService = inject(AppService);
+
+  getRouteState(outlet: RouterOutlet) {
+    if (!outlet.activatedRouteData?.['animation']) return null;
+    const paramId = outlet.activatedRoute?.snapshot.paramMap.get('id') ?? '';
+    return outlet.activatedRouteData['animation'] + paramId;
+  }
 }

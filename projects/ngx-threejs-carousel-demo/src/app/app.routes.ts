@@ -16,6 +16,7 @@ export const routes: Routes = [
       {
         path: ':id',
         component: InfoPanelComponent,
+        data: { animation: 'InfoPanelPage' },
         resolve: {
           project: (route: ActivatedRouteSnapshot) => {
             const appService = inject(AppService);
