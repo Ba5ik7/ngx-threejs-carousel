@@ -24,7 +24,7 @@ export class StaggerTextPipe implements PipeTransform {
           @for (char of title | staggerText; track $index) {
           <span
             class="neon-animation"
-            [style.animationDelay]="$index * 0.1 + 's'"
+            [style.animationDelay]="($index + 14) * 0.1 + 's'"
           >
             {{ char }}
           </span>
@@ -52,22 +52,30 @@ export class StaggerTextPipe implements PipeTransform {
           .neon-animation {
             opacity: 0;
             display: inline-block;
-            animation: neonFadeIn 5s forwards;
+            animation: neonFadeIn 0.4s forwards;
           }
 
           @keyframes neonFadeIn {
             0% {
               opacity: 0;
-              color: #39ff14; /* bright neon green */
+              color: #39ff14;
               text-shadow: 0 0 10px #39ff14;
+            }
+            25% {
+              font-weight: 300;
             }
             50% {
               opacity: 1;
-              color: var(--mat-sys-primary);
+              font-weight: 500;
+            }
+            75% {
+              font-weight: 300;
               text-shadow: none;
             }
             100% {
+              color: var(--mat-sys-primary);
               opacity: 1;
+              font-weight: 100;
               text-shadow: none;
             }
           }
