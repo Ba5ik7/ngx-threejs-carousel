@@ -52,6 +52,7 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   private angleOffset = 540; // The “yaw” in your old code (like 380/xmlList.length)...
   private images = [
     'assets/javascript.png',
+    'assets/typescript.png',
     'assets/flash.png',
     'assets/gba.png',
     'assets/ngx-workshop.png',
@@ -61,7 +62,6 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     'assets/flash_cc.jpg',
     'assets/iis-7-welcome-screen.png',
     'assets/lamp.jpeg',
-    'assets/flash_cc.jpg',
   ];
 
   // Camera interpolation
@@ -245,7 +245,7 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
         uniform vec3 bottomColor;
         varying vec3 vWorldPosition;
         void main() {
-          float h = normalize(vWorldPosition).y * 0.5 + 0.5; 
+          float h = normalize(vWorldPosition).y * 0.5 + 0.5;
           // "h" goes from 0 to 1 as we move from bottom to top
           gl_FragColor = vec4(mix(bottomColor, topColor, h), 1.0);
         }
@@ -356,13 +356,13 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     // Move camera some distance *behind* the plane's forward vector
     // If you need to reverse direction, switch to .multiplyScalar(+300)
     // to get the camera on the front side.
-    const distance = 300;
+    const distance = 200;
     const finalCamPos = planePos
       .clone()
       .add(planeDir.multiplyScalar(-distance));
 
     this.goPosition.copy(finalCamPos);
-    this.goTarget.copy(planePos);
+    this.goTarget.set(planePos.x, planePos.y, planePos.z);
   }
 
   private animate = () => {

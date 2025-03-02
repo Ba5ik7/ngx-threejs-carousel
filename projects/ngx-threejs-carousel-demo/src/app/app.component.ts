@@ -48,7 +48,7 @@ import { NavBarComponent } from './components/nav-bar.component';
         main {
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
+          align-items: center;
           camp-ground-scene {
             position: absolute;
           }

@@ -84,7 +84,10 @@ export class ThemePickerService {
   ];
 
   darkMode = signal<boolean>(
-    localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) === 'true'
+    localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) === null
+      ? true
+      : localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) ===
+          'true'
   );
   darkModeResource = resource({
     request: () => this.darkMode(),
@@ -97,7 +100,8 @@ export class ThemePickerService {
   });
 
   userSelectedTheme = signal<string>(
-    localStorage.getItem(ThemePickerService.THEME_STRORAGE_KEY) ?? ThemePickerService.DEFAULT_THEME
+    localStorage.getItem(ThemePickerService.THEME_STRORAGE_KEY) ??
+      ThemePickerService.DEFAULT_THEME
   );
   currentTheme = linkedSignal<string, string>({
     source: this.userSelectedTheme,
