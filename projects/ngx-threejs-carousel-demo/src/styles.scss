@@ -124,3 +124,27 @@ body {
     @include mat.elevation($i);
   }
 }
+
+@keyframes neonFadeIn {
+  0% {
+    opacity: 0;
+    color: #39ff14;
+    text-shadow: 0 0 10px #39ff14;
+  }
+  25% {
+    font-weight: 300;
+  }
+  50% {
+    opacity: 1;
+    font-weight: 500;
+  }
+  75% {
+    font-weight: 300;
+    text-shadow: none;
+  }
+  100% {
+    opacity: 1;
+    font-weight: 100;
+    text-shadow: none;
+  }
+}

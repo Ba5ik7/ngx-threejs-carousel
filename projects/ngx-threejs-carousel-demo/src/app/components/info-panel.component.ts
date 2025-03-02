@@ -19,6 +19,7 @@ export class StaggerTextPipe implements PipeTransform {
   imports: [StaggerTextPipe],
   template: `
     <div class="info-panel">
+      <img src="assets/angular.png" alt="3d model" />
       <h1>
         @for (char of title | staggerText; track $index) {
         <span
@@ -30,7 +31,6 @@ export class StaggerTextPipe implements PipeTransform {
         }
       </h1>
       <p>
-        <img src="assets/angular.png" alt="3d model" />
         @for (char of description | staggerText; track $index) {
           @if(char === "\n") { <br /> } @else {
           <span
@@ -41,58 +41,37 @@ export class StaggerTextPipe implements PipeTransform {
         }
       </p>
       <p>
-        <a href="">Github</a>
-        <br />
-        <a href="">Link to the Demo</a>
+        <a href="">Github</a> 🔥 <a href="">Link to the Demo</a>
       </p>
     </div>
   `,
   styles: [
     `
-      @keyframes neonFadeIn {
-        0% {
-          opacity: 0;
-          color: #39ff14;
-          text-shadow: 0 0 10px #39ff14;
-        }
-        25% {
-          font-weight: 300;
-        }
-        50% {
-          opacity: 1;
-          font-weight: 500;
-        }
-        75% {
-          font-weight: 300;
-          text-shadow: none;
-        }
-        100% {
-          opacity: 1;
-          font-weight: 100;
-          text-shadow: none;
-        }
-      }
-
       .info-panel {
         display: block;
         position: relative;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 0.8);
+        // background-color: var(--mat-sys-secondary-container);
         height: calc(100% - 128px);
-        margin: 64px 24px;
+        margin: 205px 0;
         padding: 0 24px;
         border-radius: 16px;
         overflow-y: auto;
-        width: 100%;
-        max-width: 500px;
+        width: 650px;
         min-height: 300px;
 
         img {
-          width: 100%;
+          // width: 100%;
+          max-height: 160px;
           border-radius: 8px;
+         margin-top: 0px;
+         padding: 0px;
         }
 
         h1 {
           color: var(--mat-sys-on-primary-container);
+          margin: 0;
+          padding: 0;
         }
 
         p {
@@ -117,10 +96,7 @@ export class InfoPanelComponent {
   title = 'Ngx-Workshop';
   description = `Type help for a list of commands.\n
   - About to learn more about me\n
-  - About to learn more about me\n
-  - About to learn more about me\n
-  - About to learn more about me\n
-  - Past and current projects.\n`;
+  - About to learn more about me\n`;
   ngOnInit() {
     console.log('InfoPanelComponent initialized');
   }

@@ -85,6 +85,8 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     this.createPhotoPlanes();
     this.addLights();
     this.load3DModel();
+    this.loadCloud3DModel();
+    this.loadSatelliteDModel();
     this.addSkySphere();
     this.animate();
 
@@ -178,6 +180,7 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
 
       this.planeMeshes.push(boxMesh);
       this.group.add(boxMesh);
+      this.group.visible = false;
     });
 
     this.group.position.y = 175;
@@ -194,6 +197,41 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
         const model = gltf.scene;
         model.position.set(0, 0, 0);
         model.scale.set(0.2, 0.2, 0.2);
+        this.scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading GLTF model:', error);
+      }
+    );
+  }
+
+  private loadCloud3DModel(): void {
+    const loader = new GLTFLoader();
+    loader.load(
+      'assets/low_poly_cloud_pack_gltf/scene.gltf',
+      (gltf) => {
+        const model = gltf.scene;
+        model.position.set(0, 1000, -100);;
+        model.scale.set(2, 2, 2);
+        this.scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading GLTF model:', error);
+      }
+    );
+  }
+
+  private loadSatelliteDModel(): void {
+    const loader = new GLTFLoader();
+    loader.load(
+      'assets/cartoon_satellite_gltf/scene.gltf',
+      (gltf) => {
+        const model = gltf.scene;
+        model.position.set(-350, 1700, 200);;
+        model.scale.set(300, 300, 300);
+        model.rotateZ(0.5);
         this.scene.add(model);
       },
       undefined,
