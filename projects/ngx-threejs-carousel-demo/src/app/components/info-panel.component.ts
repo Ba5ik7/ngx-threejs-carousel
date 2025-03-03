@@ -1,6 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { AppService } from '../services/app.service';
 import { Pipe, PipeTransform } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Pipe({
   name: 'staggerText',
@@ -16,62 +20,76 @@ export class StaggerTextPipe implements PipeTransform {
 @Component({
   selector: 'app-info-panel',
   standalone: true,
-  imports: [StaggerTextPipe],
+  imports: [AsyncPipe, StaggerTextPipe, MatButtonModule, MatIcon],
   template: `
     <div class="info-panel">
-      <img src="assets/angular.png" alt="3d model" />
-      <h1>
-        @for (char of title | staggerText; track $index) {
-        <span
-          class="neon-animation"
-          [style.animationDelay]="($index + 14) * 0.1 + 's'"
-        >
-          {{ char }}
-        </span>
-        }
-      </h1>
-      <p>
-        @for (char of description | staggerText; track $index) {
-          @if(char === "\n") { <br /> } @else {
+      @if(currentProjectRepo$ | async; as project) {
+
+      <div class="content">
+        <h1>
+          @for (char of project.name | staggerText; track $index) {
+          <span
+            class="neon-animation"
+            [style.animationDelay]="($index + 14) * 0.1 + 's'"
+          >
+            {{ char }}
+          </span>
+          }
+        </h1>
+        <p>
+          @for (char of project.description | staggerText; track $index) {
           <span
             class="neon-animation"
             [style.animationDelay]="($index + 60) * 0.03 + 's'"
-            >{{ char }}</span>
+          >
+            {{ char }}
+          </span>
           }
-        }
-      </p>
-      <p>
-        <a href="">Github</a> 🔥 <a href="">Link to the Demo</a>
-      </p>
+        </p>
+      </div>
+
+      <div class="action-group">
+        <a [href]="project.url" target="blank"
+          ><img [src]="project.previewImage" alt="3d model"
+        /></a>
+        <p>
+          <button mat-flat-button href="">Webpage</button>
+        </p>
+      </div>
+      }
+
+      <div class="nav-action-group">
+        <button mat-icon-button (click)="previousProject()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button (click)="nextProject()">
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
     </div>
   `,
   styles: [
     `
       .info-panel {
-        display: block;
+        display: flex;
         position: relative;
+        max-width: 768px;
+        height: calc(100% - 128px);
         background-color: rgba(0, 0, 0, 0.8);
         // background-color: var(--mat-sys-secondary-container);
-        height: calc(100% - 128px);
+        gap: 24px;
         margin: 205px 0;
-        padding: 0 24px;
+        padding: 24px;
         border-radius: 16px;
-        overflow-y: auto;
-        width: 650px;
-        min-height: 300px;
 
         img {
-          // width: 100%;
           max-height: 160px;
           border-radius: 8px;
-         margin-top: 0px;
-         padding: 0px;
         }
 
         h1 {
           color: var(--mat-sys-on-primary-container);
-          margin: 0;
-          padding: 0;
+          margin: 0.3em 0;
         }
 
         p {
@@ -79,29 +97,32 @@ export class StaggerTextPipe implements PipeTransform {
           color: var(--mat-sys-on-secondary-container);
         }
 
-        h1,
-        p {
-          .neon-animation {
-            opacity: 0;
-            display: inline-block;
-            animation: neonFadeIn 0.4s forwards;
-          }
+        .action-group {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-end;
+        }
+
+        .neon-animation {
+          opacity: 0;
+          display: inline-block;
+          animation: neonFadeIn 0.4s forwards;
         }
       }
     `,
   ],
 })
 export class InfoPanelComponent {
-  currentProject$ = inject(AppService).curentProject$;
-  title = 'Ngx-Workshop';
-  description = `Type help for a list of commands.\n
-  - About to learn more about me\n
-  - About to learn more about me\n`;
-  ngOnInit() {
-    console.log('InfoPanelComponent initialized');
+  appService = inject(AppService);
+  router = inject(Router);
+  currentProjectRepo$ = this.appService.curentProjectRepo$;
+
+  nextProject() {
+    this.router.navigate(['/project', (this.appService.currentProject.value + 1) % 3]);
   }
 
-  ngOnDestroy() {
-    console.log('InfoPanelComponent destroyed');
+  previousProject() {
+    this.router.navigate(['/project', (this.appService.currentProject.value - 1) % 3]);
   }
 }

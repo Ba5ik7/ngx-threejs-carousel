@@ -2,13 +2,13 @@ import { ActivatedRouteSnapshot, DetachedRouteHandle, RouteReuseStrategy, Routes
 import { InfoPanelComponent } from './components/info-panel.component';
 import { AppService } from './services/app.service';
 import { inject, Injectable } from '@angular/core';
+import { GithubReposResolver } from './services/github.service';
 
 @Injectable({ providedIn: 'root' })
 export class DemoReuseStrategy extends RouteReuseStrategy {
   retrieve(): DetachedRouteHandle | null { return null; }
   shouldAttach(): boolean { return false; }
   shouldDetach(): boolean { return false; }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   store(): void {}
   shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
     if (future.routeConfig === curr.routeConfig) {
@@ -28,6 +28,9 @@ export const routes: Routes = [
 
   {
     path: 'project',
+    resolve: {
+      repos: GithubReposResolver,
+    },
     children: [
       {
         path: ':id',

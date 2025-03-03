@@ -29,7 +29,7 @@ import { AsyncPipe } from '@angular/common';
   styles: [
     `
       :host {
-        color: var(--mat-sys-on-primary-container);
+        // color: var(--mat-sys-on-primary-container);
         .docs-navbar-header {
           display: flex;
           flex-wrap: wrap;

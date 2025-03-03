@@ -44,36 +44,16 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   // Groups and objects
   private group = new THREE.Group();
   private particles!: THREE.Points;
-  private planeMeshes: THREE.Mesh[] = [];
+  private waypoints: THREE.Object3D[] = [];
 
   // For the “DNA” style arrangement
   private planeRadius = 375; // The distance from center
   private planeSpacingY = 150; // How far each plane is spaced on Y
   private angleOffset = 540; // The “yaw” in your old code (like 380/xmlList.length)...
-  private images = [
-    'assets/javascript.png',
-    'assets/typescript.png',
-    'assets/flash.png',
-    'assets/gba.png',
-    'assets/ngx-workshop.png',
-    'assets/mountain-2.png',
-    'assets/flash_cs4_firefly.png',
-    'assets/flash_cs4.png',
-    'assets/flash_cc.jpg',
-    'assets/iis-7-welcome-screen.png',
-    'assets/lamp.jpeg',
-  ];
 
   // Camera interpolation
   private goPosition = new THREE.Vector3(0, 0, 1000);
   private goTarget = new THREE.Vector3(0, 0, 0);
-
-  // Raycaster
-  private raycaster = new THREE.Raycaster();
-  private mouse = new THREE.Vector2();
-
-  // Track hover states
-  private hoveredObject: THREE.Object3D | null = null;
 
   private animationId?: number;
 
@@ -82,11 +62,12 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.initScene();
     this.createParticles();
-    this.createPhotoPlanes();
+    this.createCameraPlotPoints();
     this.addLights();
     this.load3DModel();
     this.loadCloud3DModel();
-    this.loadSatelliteDModel();
+    this.loadSatelliteModel();
+    this.loadSRocketModel();
     this.addSkySphere();
     this.animate();
 
@@ -94,7 +75,6 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up the animation loop when the component is destroyed
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
@@ -103,11 +83,10 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
 
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ canvas });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
@@ -116,7 +95,7 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
       0.1,
       8000
     );
-    this.camera.position.set(3000, 3000, 3000);
+    this.camera.position.set(2000, 2000, 2000);
     this.scene.add(this.camera);
 
     this.scene.add(this.group);
@@ -147,45 +126,23 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     this.scene.add(this.particles);
   }
 
-  private createPhotoPlanes(): void {
-    const textureLoader = new THREE.TextureLoader();
+  private createCameraPlotPoints(): void {
+    this.waypoints = [];
+    // Generate 10 plot points
+    for (let i = 0; i < 10; i++) {
+      const waypoint = new THREE.Object3D();
+      const angle = (this.angleOffset / 10) * i * (Math.PI / 180);
+      waypoint.position.x = Math.sin(angle) * this.planeRadius;
+      waypoint.position.z = Math.cos(angle) * this.planeRadius;
+      waypoint.position.y = i * this.planeSpacingY;
 
-    this.images.forEach((img, i) => {
-      const texture = textureLoader.load(img);
-      const geometry = new THREE.BoxGeometry(260, 146, 30);
+      waypoint.lookAt(new THREE.Vector3(0, waypoint.position.y, 0));
 
-      // OPTIONAL: If you only want the front/back to show the image and the sides a solid color,
-      // create an array of materials (the order is [+x, -x, +y, -y, +z, -z]):
-      // Instead of MeshBasicMaterial({ color: 0x555555 }) etc.
-      const materials = [
-        new THREE.MeshLambertMaterial({ color: 0x555555 }), // +x
-        new THREE.MeshLambertMaterial({ color: 0x555555 }), // -x
-        new THREE.MeshLambertMaterial({ color: 0x555555 }), // +y
-        new THREE.MeshLambertMaterial({ color: 0x555555 }), // -y
-        // For front and back faces with a texture:
-        new THREE.MeshLambertMaterial({ color: 0x555555 }), // +z (front)
-        new THREE.MeshBasicMaterial({ map: texture }), // -z (back)
-      ];
+      this.waypoints.push(waypoint);
+      this.group.add(waypoint);
+    }
 
-      // If you want the same texture on all faces, you can still pass in [material, material, ...] for each side.
-      const boxMesh = new THREE.Mesh(geometry, materials);
-      const angle =
-        (this.angleOffset / this.images.length) * i * (Math.PI / 180);
-      boxMesh.position.x = Math.sin(angle) * this.planeRadius;
-      boxMesh.position.z = Math.cos(angle) * this.planeRadius;
-      boxMesh.position.y = i * this.planeSpacingY;
-
-      // Let’s have them face inward toward the camera:
-      boxMesh.lookAt(new THREE.Vector3(0, boxMesh.position.y, 0));
-
-      this.planeMeshes.push(boxMesh);
-      this.group.add(boxMesh);
-      this.group.visible = false;
-    });
-
-    this.group.position.y = 175;
-    this.group.position.x = -133;
-    this.group.position.z = -280;
+    this.group.position.set(-133, 175, -280);
     this.group.rotateY(89.7);
   }
 
@@ -212,7 +169,7 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
       'assets/low_poly_cloud_pack_gltf/scene.gltf',
       (gltf) => {
         const model = gltf.scene;
-        model.position.set(0, 1000, -100);;
+        model.position.set(0, 1000, -100);
         model.scale.set(2, 2, 2);
         this.scene.add(model);
       },
@@ -223,13 +180,13 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  private loadSatelliteDModel(): void {
+  private loadSatelliteModel(): void {
     const loader = new GLTFLoader();
     loader.load(
       'assets/cartoon_satellite_gltf/scene.gltf',
       (gltf) => {
         const model = gltf.scene;
-        model.position.set(-350, 1700, 200);;
+        model.position.set(-350, 2000, 200);
         model.scale.set(300, 300, 300);
         model.rotateZ(0.5);
         this.scene.add(model);
@@ -241,26 +198,38 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  private loadSRocketModel(): void {
+    const loader = new GLTFLoader();
+    loader.load(
+      'assets/cartoony_rocket_gltf/scene.gltf',
+      (gltf) => {
+        const model = gltf.scene;
+        model.position.set(-300, 1000, 130);
+        model.scale.set(20, 20, 20);
+        this.scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading GLTF model:', error);
+      }
+    );
+  }
+
   private addLights(): void {
-    // Warm hemisphere light: sky color is orange-ish, ground color is a darker brown
-    const hemiLight = new THREE.HemisphereLight(0xffc37d, 0x442222, 0.3);
+    const hemiLight = new THREE.HemisphereLight(0xffa9cf, 0x4d2374, 0.1);
     this.scene.add(hemiLight);
 
-    // A warm ambient light (e.g. a soft orange hue)
-    const ambientLight = new THREE.AmbientLight(0x72015f, 3);
-    // ambientLight.castShadow = true;
+    const ambientLight = new THREE.AmbientLight(0x7b5ba7, .7);
     this.scene.add(ambientLight);
 
-    // A directional light that simulates a low, golden sun
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    // dirLight.castShadow = true;
-    dirLight.position.set(200, 100, 200);
+    const dirLight = new THREE.DirectionalLight(0xfdac53, 2);
+    dirLight.position.set(-300, 200,300);
+    dirLight.castShadow = true;
     this.scene.add(dirLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0x72015f, 3);
-    // dirLight2.castShadow = true;
-    dirLight2.position.set(300, 200, -200);
-    this.scene.add(dirLight2);
+    const fillLight = new THREE.DirectionalLight(0x7f41b6, 2);
+    fillLight.position.set(200, 200, -300);
+    this.scene.add(fillLight);
   }
 
   private addSkySphere() {
@@ -295,83 +264,20 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     this.scene.add(skyMesh);
   }
 
-  @HostListener('pointermove', ['$event'])
-  onPointerMove(event: PointerEvent) {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    // Raycast
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-    const intersects = this.raycaster.intersectObjects(this.planeMeshes);
-    if (intersects.length > 0) {
-      const intersected = intersects[0].object;
-      if (this.hoveredObject !== intersected) {
-        // We just “entered” a new plane
-        this.onPlaneOver(intersected);
-      }
-    } else {
-      // We are not over any plane
-      if (this.hoveredObject) {
-        this.onPlaneOut(this.hoveredObject);
-      }
-    }
-  }
-
-  @HostListener('pointerdown', ['$event'])
-  onPointerDown(event: PointerEvent) {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-    const intersects = this.raycaster.intersectObjects(this.planeMeshes);
-    if (intersects.length > 0) {
-      // Only consider the closest
-      const intersected = intersects[0].object;
-      this.onPlaneClick(intersected);
-    }
-  }
-
-  private onPlaneOver(object: THREE.Object3D) {
-    // If something else was hovered, trigger out on that
-    if (this.hoveredObject && this.hoveredObject !== object) {
-      this.onPlaneOut(this.hoveredObject);
-    }
-    this.hoveredObject = object;
-    // Example: scale up a bit or change color
-    object.scale.set(1.1, 1.1, 1.1);
-  }
-
-  private onPlaneOut(object: THREE.Object3D) {
-    // Reset scale
-    object.scale.set(1, 1, 1);
-    if (this.hoveredObject === object) {
-      this.hoveredObject = null;
-    }
-  }
-
-  private onPlaneClick(object: THREE.Object3D) {
-    // Find which plane index was clicked
-    const index = this.planeMeshes.indexOf(object as THREE.Mesh);
-    if (index !== -1) {
-      this.currentProjectSignal.set(index);
-      this.focusOnPlane(this.currentProjectSignal());
-      this.projectIndexChanged.emit(index);
-    }
-  }
-
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'ArrowLeft') {
       // Move to the previous plane
       this.currentProjectSignal.update((value) => value - 1);
       if (this.currentProjectSignal() < 0) {
-        this.currentProjectSignal.set(this.planeMeshes.length - 1);
+        this.currentProjectSignal.set(this.waypoints.length - 1);
       }
       this.focusOnPlane(this.currentProjectSignal());
       this.projectIndexChanged.emit(this.currentProjectSignal());
     } else if (event.key === 'ArrowRight') {
       // Move to the next plane
       this.currentProjectSignal.update((value) => value + 1);
-      if (this.currentProjectSignal() >= this.planeMeshes.length) {
+      if (this.currentProjectSignal() >= this.waypoints.length) {
         this.currentProjectSignal.set(0);
       }
       this.focusOnPlane(this.currentProjectSignal());
@@ -380,21 +286,15 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
   }
 
   private focusOnPlane(idx: number) {
-    const planeObj = this.planeMeshes[idx];
+    const planeObj = this.waypoints[idx];
 
-    // Get the plane's world position
     const planePos = new THREE.Vector3();
     planeObj.getWorldPosition(planePos);
 
-    // Get the plane's local forward direction in world space
-    // (Three.js typically uses the negative Z axis as "forward")
     const planeDir = new THREE.Vector3();
     planeObj.getWorldDirection(planeDir);
 
-    // Move camera some distance *behind* the plane's forward vector
-    // If you need to reverse direction, switch to .multiplyScalar(+300)
-    // to get the camera on the front side.
-    const distance = 200;
+    const distance = 300;
     const finalCamPos = planePos
       .clone()
       .add(planeDir.multiplyScalar(-distance));
@@ -419,10 +319,6 @@ export class CampGroundSceneComponent implements AfterViewInit, OnDestroy {
     const lookZ =
       this.camera.position.z - (this.camera.position.z - this.goTarget.z) / 32;
     this.camera.lookAt(lookX, lookY, lookZ);
-
-    // If you want the entire group to spin slowly (like your original rotate),
-    // do something like:
-    // this.group.rotation.y += 0.003;
 
     this.renderer.render(this.scene, this.camera);
   };
