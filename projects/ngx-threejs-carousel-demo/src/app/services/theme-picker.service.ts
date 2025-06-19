@@ -84,10 +84,11 @@ export class ThemePickerService {
   ];
 
   darkMode = signal<boolean>(
-    localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) === null
-      ? true
-      : localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) ===
-          'true'
+    true
+    // localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) === null
+    //   ? true
+    //   : localStorage.getItem(ThemePickerService.DARK_MODE_STRORAGE_KEY) ===
+    //       'true'
   );
   darkModeResource = resource({
     params: () => this.darkMode(),

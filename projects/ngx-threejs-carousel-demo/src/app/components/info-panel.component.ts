@@ -59,12 +59,13 @@ export class StaggerTextPipe implements PipeTransform {
       }
 
       <div class="nav-action-group">
-        <button mat-icon-button (click)="previousProject()">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
         <button mat-icon-button (click)="nextProject()">
           <mat-icon>arrow_forward</mat-icon>
         </button>
+        <button mat-icon-button (click)="previousProject()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
       </div>
     </div>
   `,
@@ -103,6 +104,9 @@ export class StaggerTextPipe implements PipeTransform {
           justify-content: space-between;
           align-items: flex-end;
         }
+        .action-nav-group {
+          width: 40px;
+        }
 
         .neon-animation {
           opacity: 0;
@@ -119,10 +123,24 @@ export class InfoPanelComponent {
   currentProjectRepo$ = this.appService.curentProjectRepo$;
 
   nextProject() {
-    this.router.navigate(['/project', (this.appService.currentProject.value + 1) % 3]);
+    this.router.navigate([
+      '/project',
+      // Ensure the project ID wraps around correctly REPO_LIMIT = 10;
+      // If you have more than 10 projects, adjust this logic accordingly.
+      0 === this.appService.currentProject.value
+        ? 0
+        : 0 === this.appService.currentProject.value % 10
+        ? 0
+        : this.appService.currentProject.value + 1,
+      // this.appService.currentProject.value + 1,
+
+    ]);
   }
 
   previousProject() {
-    this.router.navigate(['/project', (this.appService.currentProject.value - 1) % 3]);
+    this.router.navigate([
+      '/project',
+      (this.appService.currentProject.value - 1),
+    ]);
   }
 }

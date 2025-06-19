@@ -72,7 +72,7 @@ interface RepoWithCommit {
 export class GithubService {
   private readonly GITHUB_API_URL = 'https://api.github.com';
   private readonly USERNAME = 'ba5ik7';
-  private readonly REPO_LIMIT = 10;
+  REPO_LIMIT = 10;
 
   repos = new BehaviorSubject<RepoWithCommit[]>([]);
   repos$ = this.repos.asObservable();

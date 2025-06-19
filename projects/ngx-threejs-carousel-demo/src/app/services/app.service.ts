@@ -1,20 +1,16 @@
-import { inject, Injectable } from "@angular/core";
-import { BehaviorSubject, combineLatest, map } from "rxjs";
-import { GithubService } from "./github.service";
-
-
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { GithubService } from './github.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppService {
   currentProject = new BehaviorSubject<number>(0);
   curentProject$ = this.currentProject.asObservable();
 
-    curentProjectRepo$ = combineLatest([
-      inject(GithubService).repos$,
-      this.curentProject$
-    ]).pipe(
-      map(([repos, projectId]) => repos[projectId])
-    );
+  curentProjectRepo$ = combineLatest([
+    inject(GithubService).repos$,
+    this.curentProject$,
+  ]).pipe(map(([repos, projectId]) => repos[projectId]));
 }
