@@ -1,4 +1,4 @@
-import { Injectable, NgZone, EventEmitter } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
@@ -53,8 +53,6 @@ export class ThreeCanvasService {
   // the “currently selected index.”
   public planeClicked = new EventEmitter<number>();
   public currentPlaneIndex = 0;
-
-  constructor(private ngZone: NgZone) {}
 
   /**
    * Initialize Three.js scene, camera, renderer, etc.
@@ -349,11 +347,8 @@ export class ThreeCanvasService {
     this.goTarget.set(planePos.x, planePos.y, planePos.z);
   }
 
-  /**
-   * The main render loop, run outside Angular’s zone.
-   */
   private startRenderingLoop() {
-    this.ngZone.runOutsideAngular(() => {
+
       const renderLoop = () => {
         this.animationId = requestAnimationFrame(renderLoop);
 
@@ -374,7 +369,6 @@ export class ThreeCanvasService {
         this.renderer.render(this.scene, this.camera);
       };
       renderLoop();
-    });
   }
 
   /**

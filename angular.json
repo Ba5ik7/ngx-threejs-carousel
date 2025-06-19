@@ -20,9 +20,6 @@
             "outputPath": "dist/ngx-threejs-carousel-demo",
             "index": "projects/ngx-threejs-carousel-demo/src/index.html",
             "browser": "projects/ngx-threejs-carousel-demo/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "projects/ngx-threejs-carousel-demo/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -79,10 +76,6 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
             "tsConfig": "projects/ngx-threejs-carousel-demo/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
