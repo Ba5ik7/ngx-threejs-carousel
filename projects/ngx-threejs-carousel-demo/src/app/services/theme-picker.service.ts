@@ -90,8 +90,8 @@ export class ThemePickerService {
           'true'
   );
   darkModeResource = resource({
-    request: () => this.darkMode(),
-    loader: async ({ request: darkMode }) => {
+    params: () => this.darkMode(),
+    loader: async ({ params: darkMode }) => {
       await localStorage.setItem(
         ThemePickerService.DARK_MODE_STRORAGE_KEY,
         darkMode.toString()
